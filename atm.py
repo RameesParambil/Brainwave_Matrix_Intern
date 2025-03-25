@@ -17,8 +17,16 @@ class atm():
         optFrame = tk.Frame(self.root, bd=5, relief="ridge", bg=self.clr(160,200,250))
         optFrame.place(width=self.width/3 ,height=self.height-180 ,x=70 ,y=100 )
 
-        acLbl = tk.Label(optFrame, text="Account_No:", bg=self.clr(160,200,250), font=("Arial", 15, "bold"))
-        acLbl.grid(row=0, column=0, padx=20, pady=30)
+        atmLbl = tk.Label(optFrame, text="Account_No:", bg=self.clr(160,200,250), font=("Arial", 15, "bold"))
+        atmLbl.grid(row=0, column=0, padx=20, pady=30)
+        self.atm = tk.Entry(optFrame, width=20, font=("Arial",15), bd=2)
+        self.atm.grid(row=0, column=1, padx=10, pady=20)
+
+        pwLbl = tk.Label(optFrame, text="Password:", bg=self.clr(160,200,250), font=("Arial",15,"bold"))
+        pwLbl.grid(row=1, column=0, padx=20, pady=30)
+        self.pw = tk.Entry(optFrame, width=20, font=("Arial",15), bd=2)
+        self.pw.grid(row=1, column=1, padx=20, pady=30)
+
 
         #detail frame
 
