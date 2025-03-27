@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 
 class atm():
     def __init__(self,root):
@@ -45,11 +46,31 @@ class atm():
 
         #detail frame
 
-        detFrame = tk.Frame(self.root, bd=5, relief="ridge", bg=self.clr(240,180,150))
-        detFrame.place(width=self.width/2 ,height=self.height-180 ,x=self.width/3+140 ,y=100 )
+        self.detFrame = tk.Frame(self.root, bd=5, relief="ridge", bg=self.clr(240,180,150))
+        self.detFrame.place(width=self.width/2 ,height=self.height-180 ,x=self.width/3+140 ,y=100 )
 
-        lbl = tk.Label(detFrame, text="Account Details", bd=3, font=("Arial",30,"bold"), bg=self.clr(240,210,150))
+        lbl = tk.Label(self.detFrame, text="Account Details", bd=3, font=("Arial",30,"bold"), bg=self.clr(240,210,150))
         lbl.pack(side="top", fill="x")
+        self.tabFun()
+
+    def tabFun(self):
+        tabFrame = tk.Frame(self.detFrame, bd=4, relief="sunken", bg="cyan")
+        tabFrame.place(width=self.width/2-40, height=self.height-270, x=17, y=70)
+
+        x_scrol = tk.Scrollbar(tabFrame, orient="horizontal")
+        x_scrol.pack(side="bottom", fill="x")
+
+        y_scrol = tk.Scrollbar(tabFrame, orient="vertical")
+        y_scrol.pack(side="right", fill="y")
+
+        self.table = ttk.Treeview(tabFrame, xscrollcommand=x_scrol.set, yscrollcommand=y_scrol.set,
+                                  columns=("ac", "name","bal"))
+        
+        self.table.heading("ac", text="Account_No:")
+        self.table.heading("bal", text="Balance")
+
+        self.table.pack(fill="both", expand=1)
+
 
     def clr(self, r,g,b):
         return f"#{r:02x}{g:02x}{b:02x}"
