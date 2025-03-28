@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 
 class atm():
     def __init__(self,root):
@@ -64,12 +65,29 @@ class atm():
         y_scrol.pack(side="right", fill="y")
 
         self.table = ttk.Treeview(tabFrame, xscrollcommand=x_scrol.set, yscrollcommand=y_scrol.set,
-                                  columns=("ac", "name","bal"))
+                                  columns=("ac","name","bal"))
         
-        self.table.heading("ac", text="Account_No:")
+        x_scrol.config(command=self.table.xview)
+        y_scrol.config(command=self.table.yview)
+        
+        self.table.heading("ac", text="Account_No")
+        self.table.heading("name", text="User_Name")
         self.table.heading("bal", text="Balance")
+        self.table["show" ] = "headings"
 
         self.table.pack(fill="both", expand=1)
+
+    def inqFun(self):
+        atm = self.atm.get()
+        p = self.pw.get()
+
+        if atm and p:
+            atmNo = int(atm)
+            pw = int(p)
+
+        else:
+            tk.messagebox.showerror("Error", "Please Fill All Input Fields.")
+
 
 
     def clr(self, r,g,b):
