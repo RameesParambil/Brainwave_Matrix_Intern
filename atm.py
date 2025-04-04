@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+import pymysql
 
 class atm():
     def __init__(self,root):
@@ -31,7 +32,7 @@ class atm():
 
         inqLbl = tk.Label(optFrame, text="Balance Inquiry:", bg=self.clr(160,200,250), font=("Arial",12,"bold"))
         inqLbl.grid(row=2, column=0, padx=20, pady=30)
-        inqBtn = tk.Button(optFrame, text="Enter", width=8, bd=2, relief="raised", font=("Arial",15,"bold"))
+        inqBtn = tk.Button(optFrame, command=self.inqFun, text="Enter", width=8, bd=2, relief="raised", font=("Arial",15,"bold"))
         inqBtn.grid(row=2, column=1, padx=10, pady=30)
 
         wdLbl = tk.Label(optFrame, text="Cash Withdraw:", bg=self.clr(160,200,250), font=("Arial",12,"bold"))
@@ -84,9 +85,37 @@ class atm():
         if atm and p:
             atmNo = int(atm)
             pw = int(p)
+            try:
+                self.dbFun()
+                self.cur.execute("select password from atm where atmNo=%s", atmNo)
+                password = self.cur.fetchone()
+
+                if password:
+                    if pw == password[0]:
+                        self.cur.execute("select accountNo, name, balance from atm where atmNo=%s", atmNo)
+                        data = self.cur.fetchone()
+                        self.tabFun()
+                        self.table.delete(*self.table.get_children())
+                        self.table.insert('', tk.END, values=data)
+                        
+                        self.con.close()
+
+                    else:
+                        tk.messagebox.showerror("Error", "Invalid Password")
+
+                else:
+                    tk.messagebox.showerror("Error", "Invalid Atm_No")
+
+            except  Exception as e:  
+                tk.messagebox.showerror("Error", f"Error : {e}")
 
         else:
             tk.messagebox.showerror("Error", "Please Fill All Input Fields.")
+
+    def dbFun(self):
+        self.con = pymysql.connect(host="localhost", user="root", passwd="admin", database="atmdb")
+        self.cur = self.con.cursor()
+
 
 
 
