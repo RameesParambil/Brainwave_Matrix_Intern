@@ -97,7 +97,7 @@ class atm():
                         self.tabFun()
                         self.table.delete(*self.table.get_children())
                         self.table.insert('', tk.END, values=data)
-                        
+
                         self.con.close()
 
                     else:
@@ -116,7 +116,34 @@ class atm():
         self.con = pymysql.connect(host="localhost", user="root", passwd="admin", database="atmdb")
         self.cur = self.con.cursor()
 
+    def wdFun(self):
+        atm = self.atm.get()
+        p = self.pw.get()
 
+        if atm and p:
+            atmNo = int(atm)
+            pw = int(p)
+            self.frameFun()
+            try:
+
+            
+            except  Exception as e:  
+                tk.messagebox.showerror("Error", f"Error : {e}")
+
+        else:
+            tk.messagebox.showerror("Error", "Please Fill All Input Fields.")
+
+    def frameFun(self):
+        amountFrame = tk.Frame(self.root, bd=4, relief="ridge", bg=self.clr(150,240,220))
+        amountFrame.place(width=self.width/3, height=250, x=self.width/3+120, y=100)
+
+        lbl = tk.Label(amountFrame, text="Amount:", bg=self.clr(150,240,220), font=("Arial", 15, "bold"))
+        lbl.grid(row=0, column=0, padx=20, pady=30)
+        self.wdIn = tk.Entry(amountFrame, width=20, bd=2, font=("Arial", 15))
+        self.wdIn.grid(row=0, column=1, padx=10, pady=30)
+
+        wdBtn = tk.Button(amountFrame, text="Enter", bd=3, relief="raised", font=("Arial", 20, "bold"), width=200)
+        wdBtn.grid(row=1, column=0, padx=30, pady=40, columnspan=2)
 
 
     def clr(self, r,g,b):
