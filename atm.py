@@ -37,7 +37,7 @@ class atm():
 
         wdLbl = tk.Label(optFrame, text="Cash Withdraw:", bg=self.clr(160,200,250), font=("Arial",12,"bold"))
         wdLbl.grid(row=3, column=0, padx=20, pady=30)
-        wdBtn = tk.Button(optFrame, text="Enter", width=8, bd=2, relief="raised", font=("Arial",15,"bold"))
+        wdBtn = tk.Button(optFrame, command=self.frameFun, text="Enter", width=8, bd=2, relief="raised", font=("Arial",15,"bold"))
         wdBtn.grid(row=3, column=1, padx=10, pady=30)
 
         transLbl = tk.Label(optFrame, text="Transaction:", bg=self.clr(160,200,250), font=("Arial",12,"bold"))
@@ -124,27 +124,66 @@ class atm():
             atmNo = int(atm)
             pw = int(p)
             self.frameFun()
+            amount = int(self.wdIn.get())
             try:
+                self.dbFun()
+                self.cur.execute("select password from atm where atmNo=%s", atmNo)
+                password = self.cur.fetchone()
+                if password:
+                    if pw==password[0]:
+                        self.cur.execute("select accountNo, balance from atm where atmNo=%s", atmNo)
+                        info = self.cur.fetchone()
+                        if amount <=info[1]:
+                            upd = info[1] - amount
+                            self.cur.execute("update atm set balance=%s where atmNo=%s"(upd, atmNo))
+                            self.con.commit()
+                            self.desFrame()
+                            tk.messagebox.showinfo("success", "Operation was successful")
+                            self.cur.execute("select accountNo, name, balance from atm where atmNo=%s", atmNo)
+                            data = self.cur.fetchone()
+                            self.tabFun()
+                            self.table.delete(*self.table.get_children())
+                            self.table.insert('', tk.END, values=data)
+                            self.con.close()
+
+
+                        else:
+                            tk.messagebox.showerror("Error", f"You have insufficient balance in your account.{info[0]}")
+                            self.desFrame()
+
+
+                    else:
+                        tk.messagebox.showerror("Error", "Invalid Password")
+                        self.desFrame()
+
+                else:
+                    tk.messagebox.showerror("Error", "Invalid Atm_No")
+                    self.desFrame()
 
             
             except  Exception as e:  
                 tk.messagebox.showerror("Error", f"Error : {e}")
+                self.desFrame()
 
         else:
             tk.messagebox.showerror("Error", "Please Fill All Input Fields.")
+            self.desFrame()
 
     def frameFun(self):
-        amountFrame = tk.Frame(self.root, bd=4, relief="ridge", bg=self.clr(150,240,220))
-        amountFrame.place(width=self.width/3, height=250, x=self.width/3+120, y=100)
+        self.amountFrame = tk.Frame(self.root, bd=4, relief="ridge", bg=self.clr(150,240,220))
+        self.amountFrame.place(width=self.width/3, height=250, x=self.width/3+120, y=100)
 
-        lbl = tk.Label(amountFrame, text="Amount:", bg=self.clr(150,240,220), font=("Arial", 15, "bold"))
+        lbl = tk.Label(self.amountFrame, text="Amount:", bg=self.clr(150,240,220), font=("Arial", 15, "bold"))
         lbl.grid(row=0, column=0, padx=20, pady=30)
-        self.wdIn = tk.Entry(amountFrame, width=20, bd=2, font=("Arial", 15))
+        self.wdIn = tk.Entry(self.amountFrame, width=20, bd=2, font=("Arial", 15))
         self.wdIn.grid(row=0, column=1, padx=10, pady=30)
 
-        wdBtn = tk.Button(amountFrame, text="Enter", bd=3, relief="raised", font=("Arial", 20, "bold"), width=200)
+        wdBtn = tk.Button(self.amountFrame, text="Enter", bd=3, relief="raised", font=("Arial", 20, "bold"), width=200)
         wdBtn.grid(row=1, column=0, padx=30, pady=40, columnspan=2)
 
+    def desFrame(self):
+        self.amountFrame.destroy()
+        
 
     def clr(self, r,g,b):
         return f"#{r:02x}{g:02x}{b:02x}"
