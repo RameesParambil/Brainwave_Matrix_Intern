@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-import pymysql
+import pymysql 
 
 class atm():
     def __init__(self,root):
@@ -113,8 +113,20 @@ class atm():
             tk.messagebox.showerror("Error", "Please Fill All Input Fields.")
 
     def dbFun(self):
-        self.con = pymysql.connect(host="localhost", user="root", passwd="admin", database="atmdb")
+        self.con = pymysql.connect(host="localhost", user="root", passwd="#Ramees@683", database="atmdb")
         self.cur = self.con.cursor()
+
+    def frameFun(self):
+        self.amountFrame = tk.Frame(self.root, bd=4, relief="ridge", bg=self.clr(150,240,220))
+        self.amountFrame.place(width=self.width/3, height=250, x=self.width/3+120, y=100)
+
+        lbl = tk.Label(self.amountFrame, text="Amount:", bg=self.clr(150,240,220), font=("Arial", 15, "bold"))
+        lbl.grid(row=0, column=0, padx=20, pady=30)
+        self.wdIn = tk.Entry(self.amountFrame, width=20, bd=2, font=("Arial", 15))
+        self.wdIn.grid(row=0, column=1, padx=10, pady=30)
+
+        wdBtn = tk.Button(self.amountFrame, command=self.wdFun, text="Enter", bd=3, relief="raised", font=("Arial", 20, "bold"), width=25)
+        wdBtn.grid(row=1, column=0, padx=40, pady=40, columnspan=2)
 
     def wdFun(self):
         atm = self.atm.get()
@@ -123,7 +135,6 @@ class atm():
         if atm and p:
             atmNo = int(atm)
             pw = int(p)
-            self.frameFun()
             amount = int(self.wdIn.get())
             try:
                 self.dbFun()
@@ -135,7 +146,7 @@ class atm():
                         info = self.cur.fetchone()
                         if amount <=info[1]:
                             upd = info[1] - amount
-                            self.cur.execute("update atm set balance=%s where atmNo=%s"(upd, atmNo))
+                            self.cur.execute("update atm set balance=%s where atmNo=%s",(upd, atmNo))
                             self.con.commit()
                             self.desFrame()
                             tk.messagebox.showinfo("success", "Operation was successful")
@@ -145,7 +156,6 @@ class atm():
                             self.table.delete(*self.table.get_children())
                             self.table.insert('', tk.END, values=data)
                             self.con.close()
-
 
                         else:
                             tk.messagebox.showerror("Error", f"You have insufficient balance in your account.{info[0]}")
@@ -169,20 +179,22 @@ class atm():
             tk.messagebox.showerror("Error", "Please Fill All Input Fields.")
             self.desFrame()
 
-    def frameFun(self):
-        self.amountFrame = tk.Frame(self.root, bd=4, relief="ridge", bg=self.clr(150,240,220))
-        self.amountFrame.place(width=self.width/3, height=250, x=self.width/3+120, y=100)
 
-        lbl = tk.Label(self.amountFrame, text="Amount:", bg=self.clr(150,240,220), font=("Arial", 15, "bold"))
-        lbl.grid(row=0, column=0, padx=20, pady=30)
-        self.wdIn = tk.Entry(self.amountFrame, width=20, bd=2, font=("Arial", 15))
-        self.wdIn.grid(row=0, column=1, padx=10, pady=30)
-
-        wdBtn = tk.Button(self.amountFrame, text="Enter", bd=3, relief="raised", font=("Arial", 20, "bold"), width=200)
-        wdBtn.grid(row=1, column=0, padx=30, pady=40, columnspan=2)
 
     def desFrame(self):
         self.amountFrame.destroy()
+
+    def transFrame(self):
+        self.transFrame = tk.Frame(self.root, bd=4, relief="ridge", bg=self.clr(150,240,220))
+        self.transFrame.place(width=self.width/3, height=250, x=self.width/3+120, y=100)
+
+        lbl = tk.Label(self.transFrame, text="Amount:", bg=self.clr(150,240,220), font=("Arial", 15, "bold"))
+        lbl.grid(row=0, column=0, padx=20, pady=30)
+        self.wdIn = tk.Entry(self.transFrame, width=20, bd=2, font=("Arial", 15))
+        self.wdIn.grid(row=0, column=1, padx=10, pady=30)
+
+        wdBtn = tk.Button(self.transFrame, command=self.wdFun, text="Enter", bd=3, relief="raised", font=("Arial", 20, "bold"), width=25)
+        wdBtn.grid(row=1, column=0, padx=40, pady=40, columnspan=2)
         
 
     def clr(self, r,g,b):
