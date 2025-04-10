@@ -42,7 +42,7 @@ class atm():
 
         transLbl = tk.Label(optFrame, text="Transaction:", bg=self.clr(160,200,250), font=("Arial",12,"bold"))
         transLbl.grid(row=4, column=0, padx=20, pady=30)
-        transBtn = tk.Button(optFrame, text="Enter", width=8, bd=2, relief="raised", font=("Arial",15,"bold"))
+        transBtn = tk.Button(optFrame,command=self.transFrame, text="Enter", width=8, bd=2, relief="raised", font=("Arial",15,"bold"))
         transBtn.grid(row=4, column=1, padx=10, pady=30)
 
 
@@ -186,16 +186,86 @@ class atm():
 
     def transFrame(self):
         self.transFrame = tk.Frame(self.root, bd=4, relief="ridge", bg=self.clr(150,240,220))
-        self.transFrame.place(width=self.width/3, height=250, x=self.width/3+120, y=100)
+        self.transFrame.place(width=self.width/3, height=350, x=self.width/3+120, y=100)
 
-        lbl = tk.Label(self.transFrame, text="Amount:", bg=self.clr(150,240,220), font=("Arial", 15, "bold"))
-        lbl.grid(row=0, column=0, padx=20, pady=30)
-        self.wdIn = tk.Entry(self.transFrame, width=20, bd=2, font=("Arial", 15))
-        self.wdIn.grid(row=0, column=1, padx=10, pady=30)
+        amLbl = tk.Label(self.transFrame, text="Amount:", bg=self.clr(150,240,220), font=("Arial", 15, "bold"))
+        amLbl.grid(row=0, column=0, padx=20, pady=30)
+        self.transIn = tk.Entry(self.transFrame, width=20, bd=2, font=("Arial", 15))
+        self.transIn.grid(row=0, column=1, padx=10, pady=30)
 
-        wdBtn = tk.Button(self.transFrame, command=self.wdFun, text="Enter", bd=3, relief="raised", font=("Arial", 20, "bold"), width=25)
-        wdBtn.grid(row=1, column=0, padx=40, pady=40, columnspan=2)
-        
+        user2Lbl = tk.Label(self.transFrame, text="Account_NO:", bg=self.clr(150,240,220), font=("Arial", 15, "bold"))
+        user2Lbl.grid(row=1, column=0, padx=20, pady=30)
+        self.user2In = tk.Entry(self.transFrame, width=20, bd=2, font=("Arial", 15))
+        self.user2In.grid(row=1, column=1, padx=10, pady=30)
+
+        transBtn = tk.Button(self.transFrame,command=self.transFun, text="Enter", bd=3, relief="raised", font=("Arial", 20, "bold"), width=25)
+        transBtn.grid(row=2, column=0, padx=40, pady=40, columnspan=2)
+
+    def desTrans(self):
+        self.transFrame.destroy()
+
+    def transFun(self):
+        atm = self.atm.get()
+        p = self.pw.get()
+
+        if atm and p:
+            atmNo = int(atm)
+            pw = int(p)
+            amount = int(self.transIn.get())
+            user2 = int(self.user2In.get())
+
+            try:
+                self.dbFun()
+                self.cur.execute("select password from atm where atmNo=%s", atmNo)
+                password = self.cur.fetchone()
+                if password:
+                    if pw==password[0]:
+                        self.cur.execute("select balance from atm where atmNo=%s", atmNo)
+                        bal = self.cur.fetchone()
+                        if amount <=bal[0]:
+                            upd = bal[0] - amount
+                            self.cur.execute("update atm set balance=%s where atmNo=%s", (upd, atmNo))
+                            self.con.commit()
+
+                            self.cur.execute("select balance from atm where accountNo=%s", user2)
+                            user2Bal = self.cur.fetchone()
+                            upd2 = user2Bal[0] + amount
+
+                            self.cur.execute("update atm set balance=%s where accountNo=%s", (upd2,user2))
+                            self.con.commit()
+                            tk.messagebox.showinfo("Success", "Operation was successful!")
+                            self.desTrans()
+
+                            self.cur.execute("select accountNo, name, balance from atm where atmNo=%s", atmNo)
+                            data = self.cur.fetchone()
+                            self.tabFun()
+                            self.table.delete(*self.table.get_children())
+                            self.table.insert('',tk.END, values=data)
+
+                            self.con.close()
+
+                        else:
+                            tk.messagebox.showerror("Error", f"You have insufficient balance in your account.")
+                            self.desTrans()
+
+                    else:
+                        tk.messagebox.showerror("Error", "Invalid Password")
+                        self.desTrans()
+
+                else:
+                    tk.messagebox.showerror("Error", "Invalid Atm_No")
+                    self.desTrans()
+   
+
+            except Exception as e:
+                tk.messagebox.showerror("Error", f"Error : {e}")
+                self.desTrans()
+
+        else:
+            tk.messagebox.showerror("Error", "Please Fill All Input Fields.")
+            self.desTrans()
+
+
 
     def clr(self, r,g,b):
         return f"#{r:02x}{g:02x}{b:02x}"
